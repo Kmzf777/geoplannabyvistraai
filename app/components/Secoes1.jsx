@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import {
-  motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue,
+  motion, AnimatePresence, useScroll, useTransform, useSpring,
   useInView, animate,
 } from 'motion/react';
 import { cidades, servicos, etapas, whats } from '../conteudo';
@@ -87,25 +87,10 @@ export function Manifesto() {
   );
 }
 
-/* ---------- services: big list, the photo follows the pointer ---------- */
+/* ---------- services: a big list; each row darkens under the pointer ---------- */
 export function Servicos() {
-  const [active, setActive] = useState(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 220, damping: 26, mass: 0.6 });
-  const sy = useSpring(y, { stiffness: 220, damping: 26, mass: 0.6 });
-  const rotate = useSpring(0, { stiffness: 120, damping: 18 });
-  const last = useRef(0);
-
-  const onMove = (e) => {
-    rotate.set(Math.max(-8, Math.min(8, (e.clientX - last.current) * 0.6)));
-    last.current = e.clientX;
-    x.set(e.clientX + 28);
-    y.set(e.clientY - 210);
-  };
-
   return (
-    <section className="section" id="servicos" aria-labelledby="servicos-h" onMouseMove={onMove}>
+    <section className="section" id="servicos" aria-labelledby="servicos-h">
       <div className="wrap">
         <div className="section__head section__head--split">
           <div>
@@ -114,7 +99,7 @@ export function Servicos() {
           </div>
           <Reveal delay={0.15}><p className="lead">Cada serviço termina num documento que o cartório, o banco ou o juiz aceitam. Toque num deles para pedir o orçamento direto no WhatsApp.</p></Reveal>
         </div>
-        <ul className="svc" style={{ listStyle: 'none', margin: 0, padding: 0 }} onMouseLeave={() => setActive(null)}>
+        <ul className="svc" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {servicos.map((s, i) => (
             <Reveal as="li" key={s.key} delay={i * 0.05} y={20}>
               <a
@@ -122,7 +107,6 @@ export function Servicos() {
                 href={whats(`Olá, quero um orçamento de ${s.nome.toLowerCase()}.`)}
                 target="_blank"
                 rel="noopener"
-                onMouseEnter={() => setActive(i)}
               >
                 <span className="mono svc__num">{String(i + 1).padStart(2, '0')}</span>
                 <span className="display svc__name">{s.nome}<span className="svc__sub">{s.desc}</span></span>
@@ -135,31 +119,6 @@ export function Servicos() {
           ))}
         </ul>
       </div>
-      <AnimatePresence>
-        {active !== null && (
-          <motion.div
-            className="svc__float"
-            style={{ x: sx, y: sy, rotate }}
-            initial={{ opacity: 0, scale: 0.7, clipPath: 'inset(50% 0 50% 0 round 16px)' }}
-            animate={{ opacity: 1, scale: 1, clipPath: 'inset(0% 0 0% 0 round 16px)' }}
-            exit={{ opacity: 0, scale: 0.8, clipPath: 'inset(50% 0 50% 0 round 16px)' }}
-            transition={{ duration: 0.5, ease: EASE }}
-          >
-            <AnimatePresence initial={false}>
-              <motion.img
-                key={active}
-                src={`/img/${servicos[active].foto}`}
-                alt=""
-                initial={{ opacity: 0, scale: 1.15 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: EASE }}
-              />
-            </AnimatePresence>
-            <span className="mono svc__float-tag">{servicos[active].tag}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
